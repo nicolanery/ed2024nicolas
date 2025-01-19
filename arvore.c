@@ -4,20 +4,20 @@
 
 #define MAX_LINE 2048
 
-// Estrutura para armazenar os dados do CSV
+// armazenar dados
 typedef struct Registro {
     char nome_completo[100];
     char cargo[100];
     char uorg_lotacao[100];
 } Registro;
 
-// Nó da árvore binária de busca
+// nó da árvore binária de busca
 typedef struct Nodo {
     Registro dado;
     struct Nodo *esquerda, *direita;
 } Nodo;
 
-// Função para criar um novo nó da árvore
+// função para criar um novo nó da árvore
 Nodo* criar_nodo(Registro registro) {
     Nodo *novo = (Nodo*)malloc(sizeof(Nodo));
     if (!novo) {
@@ -29,7 +29,7 @@ Nodo* criar_nodo(Registro registro) {
     return novo;
 }
 
-// Função para inserir um registro na ABB
+// registro no arvore
 Nodo* inserir(Nodo *raiz, Registro registro) {
     if (raiz == NULL) 
         return criar_nodo(registro);
@@ -42,7 +42,7 @@ Nodo* inserir(Nodo *raiz, Registro registro) {
     return raiz;
 }
 
-// Função para buscar um nome na ABB
+// nome na arvore
 Nodo* buscar(Nodo *raiz, const char *nome_completo) {
     if (raiz == NULL || strcmp(raiz->dado.nome_completo, nome_completo) == 0)
         return raiz;
@@ -53,7 +53,7 @@ Nodo* buscar(Nodo *raiz, const char *nome_completo) {
         return buscar(raiz->direita, nome_completo);
 }
 
-// Função para carregar dados do CSV na ABB
+// carregar dados csv na arvore
 Nodo* carregar_csv(const char *nome_arquivo, Nodo *raiz) {
     FILE *arquivo = fopen(nome_arquivo, "r");
     if (!arquivo) {
@@ -63,7 +63,7 @@ Nodo* carregar_csv(const char *nome_arquivo, Nodo *raiz) {
 
     char linha[MAX_LINE];
 
-    // Ignorar o cabeçalho
+    // ignorar cabeçalho
     if (fgets(linha, MAX_LINE, arquivo) == NULL) {
         fprintf(stderr, "Erro: Arquivo CSV está vazio ou mal formatado!\n");
         fclose(arquivo);
@@ -74,25 +74,25 @@ Nodo* carregar_csv(const char *nome_arquivo, Nodo *raiz) {
         Registro registro = { "", "", "" };
         char *token;
 
-        // Extrair os campos relevantes
+        // extrair os campos relevantes
         token = strtok(linha, ";");
         int coluna = 0;
 
         while (token != NULL) {
-            // Remover aspas ao redor do texto
+            // tirar as aspas
             if (token[0] == '"') token++;
 
             size_t len = strlen(token);
             if (token[len - 1] == '"') token[len - 1] = '\0';
 
             switch (coluna) {
-                case 1: // Coluna NOME
+                case 1: 
                     strncpy(registro.nome_completo, token, sizeof(registro.nome_completo) - 1);
                     break;
-                case 4: // Coluna DESCRICAO_CARGO
+                case 4: 
                     strncpy(registro.cargo, token, sizeof(registro.cargo) - 1);
                     break;
-                case 16: // Coluna UORG_LOTACAO
+                case 16: 
                     strncpy(registro.uorg_lotacao, token, sizeof(registro.uorg_lotacao) - 1);
                     break;
             }
@@ -101,7 +101,7 @@ Nodo* carregar_csv(const char *nome_arquivo, Nodo *raiz) {
             token = strtok(NULL, ";");
         }
 
-        // Apenas inserir registros válidos
+        // ver se registro é válido
         if (strlen(registro.nome_completo) > 0) {
             raiz = inserir(raiz, registro);
         }
@@ -111,7 +111,7 @@ Nodo* carregar_csv(const char *nome_arquivo, Nodo *raiz) {
     return raiz;
 }
 
-// Função para liberar a memória da ABB
+// liberar memoria na arvore
 void liberar_arvore(Nodo *raiz) {
     if (raiz == NULL) return;
     liberar_arvore(raiz->esquerda);
@@ -119,15 +119,15 @@ void liberar_arvore(Nodo *raiz) {
     free(raiz);
 }
 
-// Função principal
+// função principal
 int main() {
     Nodo *raiz = NULL;
-    char nome_arquivo[] = "dados.csv"; // Substituir pelo nome do seu arquivo CSV
+    char nome_arquivo[] = "dados.csv";
 
-    // Carregar dados do CSV
+    // carregar csv
     raiz = carregar_csv(nome_arquivo, raiz);
 
-    // Solicitar um nome para busca
+    // pedir nome pra buscar
     char nome_completo[100];
     printf("Digite o nome completo para buscar: ");
     if (fgets(nome_completo, sizeof(nome_completo), stdin) == NULL) {
@@ -137,7 +137,7 @@ int main() {
     }
     nome_completo[strcspn(nome_completo, "\n")] = '\0'; // Remover quebra de linha
 
-    // Buscar na ABB
+    // busca na arvore
     Nodo *resultado = buscar(raiz, nome_completo);
     if (resultado) {
         printf("Cargo: %s\n", resultado->dado.cargo);
@@ -146,7 +146,7 @@ int main() {
         printf("Registro nao encontrado!\n");
     }
 
-    // Liberar memória da ABB
+    // liberar memoria
     liberar_arvore(raiz);
     return 0;
 }
