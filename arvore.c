@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define MAX_LINE 2048
+#define MAX_LINE 10000
 
 // armazenar dados
 typedef struct Registro {
